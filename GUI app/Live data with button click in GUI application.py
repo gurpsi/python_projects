@@ -5,8 +5,8 @@ We will add a button 'Get Weather Info'.
 '''
 
 import tkinter as tk
-from tkinter import Menu
 from tkinter import ttk
+from tkinter import *
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -20,6 +20,14 @@ def quit():
     win.destroy()
     exit()
 
+
+# For resetting the fields:
+def reset():
+    print("Test")
+    updatedEntry.delete(0, END)
+    # updatedEntry.update()
+
+# text.delete(1.0, END)
 
 # Setting the title for out GUI:
 win.title('GUI')
@@ -62,7 +70,7 @@ weather_city_frame = ttk.LabelFrame(tab1, text='Latest Observation for:')
 weather_city_frame.grid(column=0, row=0, padx=8, pady=4)
 
 # Placing the comboBox in the newly created label frame:
-ttk.Label(weather_city_frame, text='Location:       ').grid(column=0, row=0, sticky='E')    # Renaming later
+ttk.Label(weather_city_frame, text='Location:   ').grid(column=0, row=0, sticky='E')    # Renaming later
 
 # entry_width = max_width + 5  # Defining the width of our entry.
 entry_width = 33
@@ -196,6 +204,9 @@ def populate_gui_from_dict():
 
 # Inserting a Button in our GUI application:
 get_weather_button = ttk.Button(weather_city_frame, text='Get Weather Info', command=get_station).grid(column=2, row=0)
+
+# Button to reset the values:
+get_weather_reset = ttk.Button(weather_city_frame, text='Reset', command=reset).grid(column=3, row=0)
 
 print('\n Program is now running \n')
 # Running the GUI:
