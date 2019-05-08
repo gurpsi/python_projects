@@ -112,7 +112,7 @@ pressureEntry = ttk.Entry(weather_control_frame, width=entry_width, textvariable
 pressureEntry.grid(column=1, row=8, sticky='W')
 
 ttk.Label(weather_control_frame, text='Altimeter:', state='readonly').grid(column=0, row=9, sticky=stick_east)
-altimeter = tk.StringVar
+altimeter = tk.StringVar()
 altimeterEntry = ttk.Entry(weather_control_frame, width=entry_width, textvariable=altimeter, state='readonly')
 altimeterEntry.grid(column=1, row=9, sticky='W')
 
