@@ -21,11 +21,11 @@ def quit():
     exit()
 
 
-# For resetting the fields:
-def reset():
-    print("Test")
-    updatedEntry.delete(0, END)
-    # updatedEntry.update()
+# TODO: For resetting the fields:
+# def reset():
+#     print("Test")
+#     updatedEntry.delete(0, END)
+#     # updatedEntry.update()
 
 # text.delete(1.0, END)
 
@@ -205,8 +205,8 @@ def populate_gui_from_dict():
 # Inserting a Button in our GUI application:
 get_weather_button = ttk.Button(weather_city_frame, text='Get Weather Info', command=get_station).grid(column=2, row=0)
 
-# Button to reset the values:
-get_weather_reset = ttk.Button(weather_city_frame, text='Reset', command=reset).grid(column=3, row=0)
+# Button to reset the values: TODO
+# get_weather_reset = ttk.Button(weather_city_frame, text='Reset', command=reset).grid(column=3, row=0)
 
 print('\n Program is now running \n')
 # Running the GUI:
