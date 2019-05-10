@@ -1,3 +1,7 @@
+'''
+Creating a GUI with 9 text boxes.
+'''
+
 import tkinter as tk
 from tkinter import Menu
 from tkinter import ttk
