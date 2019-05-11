@@ -1,5 +1,5 @@
 '''
-In this we will populate the data hard coded, in GUI application but on button click.
+In this we will populate the Live data, in GUI application but on button click.
 
 We will add a button 'Get Weather Info'.
 '''
