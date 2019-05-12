@@ -1,7 +1,7 @@
 '''
 In this we will populate the Live data, in GUI application but on button click.
 
-We will add a button 'Get Weather Info'.
+We will add a button 'Get Weather Info' and a 'Reset' Button to reset the fields.
 '''
 
 import tkinter as tk
