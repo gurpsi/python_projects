@@ -70,7 +70,7 @@ weather_city_frame = ttk.LabelFrame(tab1, text='Latest Observation for:')
 weather_city_frame.grid(column=0, row=0, padx=8, pady=4)
 
 # Placing the comboBox in the newly created label frame:
-ttk.Label(weather_city_frame, text='Location:   ').grid(column=0, row=0, sticky='E')    # Renaming later
+ttk.Label(weather_city_frame, text='Location:   ').grid(column=0, row=0, sticky='E')  # Renaming later
 
 # entry_width = max_width + 5  # Defining the width of our entry.
 entry_width = 33
@@ -129,7 +129,8 @@ for child in weather_control_frame.winfo_children():
     child.grid_configure(padx=4, pady=2)
 
 # Fetching data from the live server NOAA (National Oceanic and Atmospheric Administration):
-# URL: https://w1.weather.gov/xml/current_obs/{Station_id}.xml
+# URL: https://w1.weather.gov/xml/current_obs/{Station_id}.xml [For US states only]
+# URL: https://tgftp.nws.noaa.gov/weather/current/{Station_id}.html [For India]
 
 # Tags in which we have interest:
 weather_data_tags_dict = {
@@ -161,9 +162,9 @@ ttk.Label(weather_control_frame, text='Weather Station ID: ').grid(column=0, row
 # Setting up the stations:
 station_id = tk.StringVar()
 station_id_combo = ttk.Combobox(weather_city_frame, width=6, textvariable=station_id)
-station_id_combo['values'] = ('KLAX', 'KDEN', 'KNYC')   # Los Angeles, Denver, New York City
+station_id_combo['values'] = ('KLAX', 'KDEN', 'KNYC')  # Los Angeles, Denver, New York City
 station_id_combo.grid(column=1, row=0)
-station_id_combo.current(0) # Selects Los Angeles by default.
+station_id_combo.current(0)  # Selects Los Angeles by default.
 
 
 def get_station():
@@ -173,7 +174,8 @@ def get_station():
 
 
 def get_weather_data(station_id='KLAX'):
-    url_general = 'http://www.weather.gov/xml/current_obs/{}.xml'
+    url_general = 'https://w1.weather.gov/xml/current_obs/{}.xml'
+    # url_general = 'https://tgftp.nws.noaa.gov/weather/current/{}.html'
     url = url_general.format(station_id)
     print(url)
     request = urllib.request.urlopen(url)
@@ -201,6 +203,32 @@ def populate_gui_from_dict():
     pressure.set(weather_data_tags_dict['pressure_string'])
     altimeter.set(weather_data_tags_dict['pressure_in'] + ' in Hg')
 
+
+# TAB 2 Fields: Creating a container to hold all the widgets.
+weather_states_frame = ttk.LabelFrame(tab2, text='Weather Station ID')
+weather_states_frame.grid(column=0, row=0, padx=8, pady=4)
+
+# Adding the label:
+ttk.Label(weather_states_frame, text="Select a state: ").grid(column=0, row=0)
+
+state = tk.StringVar()
+state_combo = ttk.Combobox(weather_states_frame, width=15, textvariable=state)
+state_combo['values'] = ('ak : Alaska', 'al : Alabama', 'ar : Arkansas', 'as : American Samoa',
+                         'az : Arizona', 'ca : California', 'co : Colorado', 'ct : Connecticut',
+                         'de : Delaware', 'dc : District of Columbia', 'fm : Federated States of Micronesia',
+                         'fl : Florida', 'ga : Georgia', 'gu : Guam', 'hi : Hawaii', 'ia : Iowa', 'id : Idaho',
+                         'il : Illinois', 'in : Indiana', 'ks : Kansas', 'ky : Kentucky', 'la : Louisiana',
+                         'mh : Marshall Islands', 'ma : Massachusetts', 'md : Maryland', 'me : Maine',
+                         'mi : Michigan', 'mn : Minnesota', 'mo : Missouri', 'ms : Mississippi',
+                         'mt : Montana', 'nc : North Carolina', 'nd : North Dakota', 'ne : Nebraska',
+                         'nh : New Hampshire', 'nj : New Jersey', 'nm : New Mexico', 'nv : Nevada',
+                         'ny : New York', 'oh : Ohio', 'ok : Oklahoma', 'or : Oregon', 'pw : Palau',
+                         'pa : Pennsylvania', 'pr : Puerto Rico', 'ri : Rhoda Island', 'sc : South Carolina',
+                         'sd : South Dakota', 'tn : Tennessee', 'tx : Texas', 'ut : Utah', 'va : Virginia',
+                         'vi : Virgin Islands', 'vt : Vermont', 'wa : Washington', 'wi : Wisconsin',
+                         'wv : West Virginia', 'wy : Wyoming')
+state_combo.grid(column=1, row=0)
+state_combo.current(0)
 
 # Inserting a Button in our GUI application:
 get_weather_button = ttk.Button(weather_city_frame, text='Get Weather Info', command=get_station).grid(column=2, row=0)
