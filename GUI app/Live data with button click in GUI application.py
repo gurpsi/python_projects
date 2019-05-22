@@ -31,7 +31,7 @@ def quit():
 #     updatedEntry.delete(0, END)
 #     # updatedEntry.update()
 
-# text.delete(1.0, END)
+# text.delete(1.0, tk.END)
 
 # Setting the title for out GUI:
 win.title('GUI')
@@ -165,8 +165,8 @@ ttk.Label(weather_control_frame, text='Weather Station ID: ').grid(column=0, row
 
 # Setting up the stations:
 station_id = tk.StringVar()
-station_id_combo = ttk.Combobox(weather_city_frame, width=6, textvariable=station_id)
-station_id_combo['values'] = ('KLAX', 'KDEN', 'KNYC')  # Los Angeles, Denver, New York City
+station_id_combo = ttk.Combobox(weather_city_frame, width=10, textvariable=station_id)
+station_id_combo['values'] = ('KLAX', 'KDEN', 'KNYC', 'Manual Entry')  # Los Angeles, Denver, New York City
 station_id_combo.grid(column=1, row=0)
 station_id_combo.current(0)  # Selects Los Angeles by default.
 
@@ -232,8 +232,10 @@ state_combo['values'] = ('ak : Alaska', 'al : Alabama', 'ar : Arkansas', 'as : A
                          'sd : South Dakota', 'tn : Tennessee', 'tx : Texas', 'ut : Utah', 'va : Virginia',
                          'vi : Virgin Islands', 'vt : Vermont', 'wa : Washington', 'wi : Wisconsin',
                          'wv : West Virginia', 'wy : Wyoming')
+
 state_combo.grid(column=1, row=0)
 state_combo.current(0)
+
 
 # 'Get Cities' button for tab 2:
 def get_cities():
@@ -244,15 +246,16 @@ def get_cities():
 def get_city_station_ids(state='ca'):
     url_gen = 'http://w1.weather.gov/xml/current_obs/seek.php?state={}&Find=Find'
     state = state.lower()
-    url = url_gen.format(state)
-    request = urllib.request(url)
+    url = url_gen.format(state[:2])
+    print(url)
+    request = urllib.request.urlopen(url)
     content = request.read().decode()
 
     parser = WeatherHTMLParser()
     parser.feed(content)
 
-    # Verifying thet we have smae number of stations as number of cities:
-    print(len(parser.stations) == len(parser.cities))
+    # Verifying that we have same number of stations as number of cities:
+    # print(len(parser.stations) == len(parser.cities))
 
     # Clearing the scroll text widget for next button click:
     scr.delete('1.0', tk.END)
@@ -290,7 +293,7 @@ get_weather_button = ttk.Button(weather_city_frame, text='Get Weather Info', com
 # Inserting a Button in Tab 2:
 get_weather_button = ttk.Button(weather_states_frame, text='Get Cities', command=get_cities).grid(column=2, row=0)
 
-scr = scrolledtext.ScrolledText(weather_states_frame, width=30, height=17, wrap=tk.WORD)
+scr = scrolledtext.ScrolledText(weather_states_frame, width=40, height=30, wrap=tk.WORD)
 scr.grid(column=0, row=1, columnspan=3)
 
 
