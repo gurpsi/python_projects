@@ -249,9 +249,21 @@ def get_city_station_ids(state='ca'):
     content = request.read().decode()
 
     parser = WeatherHTMLParser()
+    parser.feed(content)
+
+    # Verifying thet we have smae number of stations as number of cities:
+    print(len(parser.stations) == len(parser.cities))
+
+    # Clearing the scroll text widget for next button click:
+    scr.delete('1.0', tk.END)
+
+    for idx in range(len(parser.stations)):
+        city_station = parser.cities[idx] + '(' + parser.stations[idx] + ')'
+        print(city_station)
+        scr.insert(tk.INSERT, city_station + '\n')
 
 
-class WeatherHTMLparser(HTMLParser):
+class WeatherHTMLParser(HTMLParser):
 
     def __init__(self):
         super().__init__()  # Initialising base class
@@ -271,8 +283,12 @@ class WeatherHTMLparser(HTMLParser):
             self.cities.append(data)
             self.grab_data = False
 
-# Inserting a Button in our GUI application:
+
+# Inserting a Button in our GUI application, Tab 1:
 get_weather_button = ttk.Button(weather_city_frame, text='Get Weather Info', command=get_station).grid(column=2, row=0)
+
+# Inserting a Button in Tab 2:
+get_weather_button = ttk.Button(weather_states_frame, text='Get Cities', command=get_cities).grid(column=2, row=0)
 
 scr = scrolledtext.ScrolledText(weather_states_frame, width=30, height=17, wrap=tk.WORD)
 scr.grid(column=0, row=1, columnspan=3)
