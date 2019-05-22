@@ -213,6 +213,7 @@ weather_states_frame.grid(column=0, row=0, padx=8, pady=4)
 # Adding the label:
 ttk.Label(weather_states_frame, text="Select a state: ").grid(column=0, row=0)
 
+# Creating a combobox for holding the values
 state = tk.StringVar()
 state_combo = ttk.Combobox(weather_states_frame, width=15, textvariable=state)
 state_combo['values'] = ('ak : Alaska', 'al : Alabama', 'ar : Arkansas', 'as : American Samoa',
