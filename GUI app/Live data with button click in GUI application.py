@@ -9,8 +9,10 @@ Added the tab 2 drop down and US states.
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
+from tkinter import scrolledtext
 import urllib.request
 import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 
 # Creating the instance of Tkinter
 win = tk.Tk()
@@ -215,7 +217,7 @@ ttk.Label(weather_states_frame, text="Select a state: ").grid(column=0, row=0)
 
 # Creating a combobox for holding the values
 state = tk.StringVar()
-state_combo = ttk.Combobox(weather_states_frame, width=15, textvariable=state)
+state_combo = ttk.Combobox(weather_states_frame, width=20, textvariable=state)
 state_combo['values'] = ('ak : Alaska', 'al : Alabama', 'ar : Arkansas', 'as : American Samoa',
                          'az : Arizona', 'ca : California', 'co : Colorado', 'ct : Connecticut',
                          'de : Delaware', 'dc : District of Columbia', 'fm : Federated States of Micronesia',
@@ -233,8 +235,48 @@ state_combo['values'] = ('ak : Alaska', 'al : Alabama', 'ar : Arkansas', 'as : A
 state_combo.grid(column=1, row=0)
 state_combo.current(0)
 
+# 'Get Cities' button for tab 2:
+def get_cities():
+    state = state_combo.get()
+    get_city_station_ids(state)
+
+
+def get_city_station_ids(state='ca'):
+    url_gen = 'http://w1.weather.gov/xml/current_obs/seek.php?state={}&Find=Find'
+    state = state.lower()
+    url = url_gen.format(state)
+    request = urllib.request(url)
+    content = request.read().decode()
+
+    parser = WeatherHTMLParser()
+
+
+class WeatherHTMLparser(HTMLParser):
+
+    def __init__(self):
+        super().__init__()  # Initialising base class
+        self.stations = []
+        self.cities = []
+        self.grab_data = False
+
+    def handle_starttag(self, tag, attrs):
+        for attr in attrs:
+            if "display.php?stid=" in str(attr):
+                cleaned_attr = str(attr).replace("('href', 'display.php?stid=", '').replace("')", '')
+                self.stations.append(cleaned_attr)
+                self.grab_data = True
+
+    def handle_data(self, data):
+        if self.grab_data:
+            self.cities.append(data)
+            self.grab_data = False
+
 # Inserting a Button in our GUI application:
 get_weather_button = ttk.Button(weather_city_frame, text='Get Weather Info', command=get_station).grid(column=2, row=0)
+
+scr = scrolledtext.ScrolledText(weather_states_frame, width=30, height=17, wrap=tk.WORD)
+scr.grid(column=0, row=1, columnspan=3)
+
 
 # Button to reset the values: TODO
 # get_weather_reset = ttk.Button(weather_city_frame, text='Reset', command=reset).grid(column=3, row=0)
