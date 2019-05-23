@@ -1,8 +1,6 @@
 '''
 In this we will populate the Live data, in GUI application but on button click.
-
 We will add a button 'Get Weather Info' and a 'Reset' Button to reset the fields.
-
 Added the tab 2 drop down and US states.
 '''
 
