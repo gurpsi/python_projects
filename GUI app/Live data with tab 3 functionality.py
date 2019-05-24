@@ -13,10 +13,10 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 
+# Library to load/manipulate the Images
 # https://pillow.readthedocs.io/en/stable/installation.html
 from PIL import Image
 from PIL import ImageTk
-# TODO: Insert image in tab 3
 
 
 # Creating the instance of Tkinter
