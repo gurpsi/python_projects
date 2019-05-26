@@ -2,7 +2,8 @@
 In this we will populate the Live data, in GUI application but on button click.
 
 After completion of tab 2, we will now proceed on for the tab 3 functionality:
-# TAB 3: In this we will be loading the image.
+
+# TAB 3: Using the Pillow Library for Image manipulation and loading.
 '''
 
 import tkinter as tk
