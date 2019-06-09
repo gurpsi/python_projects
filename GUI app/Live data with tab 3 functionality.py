@@ -5,7 +5,7 @@ After completion of tab 2, we will now proceed on for the tab 3 functionality:
 
 # TAB 3: Using the Pillow Library for Image manipulation and loading the images in GUI app.
 
-The images for this are free to use.
+Added Images.
 '''
 
 import tkinter as tk
