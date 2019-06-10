@@ -1,3 +1,7 @@
+'''
+A basic GUI window.
+'''
+
 import tkinter as tk
 
 win = tk.Tk()
