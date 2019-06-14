@@ -1,3 +1,7 @@
+'''
+A basic GUI app.
+'''
+
 from tkinter import *
 
 root = Tk()
