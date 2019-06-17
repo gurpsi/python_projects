@@ -1,3 +1,7 @@
+'''
+Vary basic introduction to classes.
+'''
+
 class to_print():
 
     def say_anything(self):
