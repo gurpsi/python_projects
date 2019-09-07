@@ -1,3 +1,7 @@
+'''
+Creating Tkinter combobox.
+'''
+
 import tkinter as tk
 from tkinter import Menu
 from tkinter import ttk

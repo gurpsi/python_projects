@@ -1,3 +1,7 @@
+'''
+Playing around with datetime.
+'''
+
 from datetime import datetime
 today = datetime.now().strftime("%D")
 

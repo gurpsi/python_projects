@@ -1,5 +1,5 @@
 '''
-In GUI application, the data is hard coded to verify the fields populating the data.
+In GUI application, the data is hard coded to verify the fields are getting populated correctly.
 '''
 
 import tkinter as tk
