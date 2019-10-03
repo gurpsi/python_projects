@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[26]:
-
-
 import os
 
 
@@ -12,9 +6,9 @@ print(len(all_files))
 count = 0
  
 for FILE in all_files:
-#     print(FILE)
+    print(FILE)
     if FILE.endswith('.txt'):
-#             print('reading')
+            print('reading')
             count+=1
             foo = str(FILE)
             with open(foo, 'r') as file :
