@@ -1,0 +1,709 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 118,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import pathlib\n",
+    "import os"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 119,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def create_mappings(X):\n",
+    "    \"\"\"Create string-IDs mappings for entities and relations.\n",
+    "\n",
+    "        Entities and relations are assigned incremental, unique integer IDs.\n",
+    "        Mappings are preserved in two distinct dictionaries,\n",
+    "        and counters are separated for entities and relations mappings.\n",
+    "\n",
+    "    Parameters\n",
+    "    ----------\n",
+    "    X : ndarray, shape [n, 3]\n",
+    "        The triples to extract mappings.\n",
+    "\n",
+    "    Returns\n",
+    "    -------\n",
+    "    rel_to_idx : dict\n",
+    "        The relation-to-internal-id associations\n",
+    "    ent_to_idx: dict\n",
+    "        The entity-to-internal-id associations.\n",
+    "\n",
+    "    \"\"\"\n",
+    "    unique_ent = np.unique(np.concatenate((X[:, 0], X[:, 2])))\n",
+    "    unique_rel = np.unique(X[:, 1])\n",
+    "    ent_count = len(unique_ent)\n",
+    "    rel_count = len(unique_rel)\n",
+    "    rel_to_idx = dict(zip(unique_rel, range(rel_count)))\n",
+    "    ent_to_idx = dict(zip(unique_ent, range(ent_count)))\n",
+    "    return rel_to_idx, ent_to_idx"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 120,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def to_idx(X, ent_to_idx=None, rel_to_idx=None):\n",
+    "    \"\"\"Convert statements (triples) into integer IDs.\n",
+    "\n",
+    "    Parameters\n",
+    "    ----------\n",
+    "    X : ndarray\n",
+    "        The statements to be converted.\n",
+    "    ent_to_idx : dict\n",
+    "        The mappings between entity strings and internal IDs.\n",
+    "    rel_to_idx : dict\n",
+    "        The mappings between relation strings and internal IDs.\n",
+    "    Returns\n",
+    "    -------\n",
+    "    X : ndarray, shape [n, 3]\n",
+    "        The ndarray of converted statements.\n",
+    "    \"\"\"\n",
+    "\n",
+    "    x_idx_s = np.vectorize(ent_to_idx.get)(X[:, 0])\n",
+    "    x_idx_p = np.vectorize(rel_to_idx.get)(X[:, 1])\n",
+    "    x_idx_o = np.vectorize(ent_to_idx.get)(X[:, 2])\n",
+    "\n",
+    "    return np.dstack([x_idx_s, x_idx_p, x_idx_o]).reshape((-1, 3))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 121,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def to_idx1(X, ent_to_idx=None, rel_to_idx=None):\n",
+    "    x_idx_s = np.vectorize(ent_to_idx.get)(X[:, 0])\n",
+    "    return np.dstack([x_idx_s]).reshape((-1, 1))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 122,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def load_from_csv(folder_name, file_name, sep=' ', header=None):\n",
+    "    df = pd.read_csv(os.path.join(path, file_name),\n",
+    "                     sep=sep,\n",
+    "                     header=header,\n",
+    "                     names=None,\n",
+    "                     dtype=str)\n",
+    "\n",
+    "    df = df.drop_duplicates()\n",
+    "    return df.as_matrix()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 123,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/Users/gurpreet.ag.singh/anaconda3/lib/python3.6/site-packages/ipykernel_launcher.py:9: FutureWarning: Method .as_matrix will be removed in a future version. Use .values instead.\n",
+      "  if __name__ == '__main__':\n"
+     ]
+    }
+   ],
+   "source": [
+    "path = os.getcwd()+'/Schema_and_Non/'\n",
+    "train_ns = load_from_csv(path,'train_ns')\n",
+    "train_s = load_from_csv(path,'train_s')\n",
+    "\n",
+    "aux_ns = load_from_csv(path,'aux_ns')\n",
+    "aux_s = load_from_csv(path,'aux_s')\n",
+    "\n",
+    "val_ns = load_from_csv(path,'val_ns')\n",
+    "val_s = load_from_csv(path,'val_s')\n",
+    "\n",
+    "unseen = load_from_csv(path,'unseen_entities_1000.txt')\n",
+    "test = load_from_csv(path,'test_1000.nt')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 124,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([['<http://dbpedia.org/resource/Albert_G._Burr>',\n",
+       "        '<http://dbpedia.org/ontology/restingPlace>',\n",
+       "        '<http://dbpedia.org/resource/Illinois>', '.'],\n",
+       "       ['<http://dbpedia.org/resource/Baggy_Trousers>',\n",
+       "        '<http://dbpedia.org/ontology/recordLabel>',\n",
+       "        '<http://dbpedia.org/resource/Stiff_Records>', '.'],\n",
+       "       ['<http://dbpedia.org/resource/Filipino_Americans>',\n",
+       "        '<http://dbpedia.org/ontology/populationPlace>',\n",
+       "        '<http://dbpedia.org/resource/Washington_(state)>', '.'],\n",
+       "       ...,\n",
+       "       ['<http://dbpedia.org/resource/Garret_FitzGerald>',\n",
+       "        '<http://dbpedia.org/ontology/termPeriod>',\n",
+       "        '<http://dbpedia.org/resource/Garret_FitzGerald__8>', '.'],\n",
+       "       ['<http://dbpedia.org/resource/Harold_Halse__4>',\n",
+       "        '<http://dbpedia.org/ontology/team>',\n",
+       "        '<http://dbpedia.org/resource/Manchester_United_F.C.>', '.'],\n",
+       "       ['<http://dbpedia.org/resource/Lucien_Muller>',\n",
+       "        '<http://dbpedia.org/ontology/careerStation>',\n",
+       "        '<http://dbpedia.org/resource/Lucien_Muller__9>', '.']],\n",
+       "      dtype=object)"
+      ]
+     },
+     "execution_count": 124,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "train_ns"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 104,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "vocab = np.concatenate((train_ns,train_s,aux_ns,aux_s,val_ns,val_s))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 105,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rel_to_idx, ent_to_idx = create_mappings(vocab)\n",
+    "\n",
+    "train_ns = to_idx(train_ns, ent_to_idx, rel_to_idx)\n",
+    "train_s = to_idx(train_s, ent_to_idx, rel_to_idx)\n",
+    "\n",
+    "aux_ns = to_idx(aux_ns, ent_to_idx, rel_to_idx)\n",
+    "aux_s = to_idx(aux_s, ent_to_idx, rel_to_idx)\n",
+    "\n",
+    "val_ns = to_idx(val_ns, ent_to_idx, rel_to_idx)\n",
+    "val_s = to_idx(val_s, ent_to_idx, rel_to_idx)\n",
+    "\n",
+    "unseen = to_idx1(unseen, ent_to_idx, rel_to_idx)\n",
+    "test = to_idx(test, ent_to_idx, rel_to_idx)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 106,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(104964, 3)"
+      ]
+     },
+     "execution_count": 106,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# train_ns.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 107,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(24779, 3)"
+      ]
+     },
+     "execution_count": 107,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# train_s.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 108,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "A New Directory is created, named: 'Seralised'\n"
+     ]
+    }
+   ],
+   "source": [
+    "path = os.getcwd()\n",
+    "pathlib.Path(path+'/Seralised').mkdir(parents=True, exist_ok=True)\n",
+    "print(\"A New Directory is created, named: 'Seralised'\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 109,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# path = path+'/Seralised/'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 110,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "'/Users/gurpreet.ag.singh/Desktop/dbpedia_1k_s (1)/schema and not schama'"
+      ]
+     },
+     "execution_count": 110,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "path"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 111,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# type(train_s)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 112,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df_train_s = pd.DataFrame(train_s,index=None, columns=None)\n",
+    "df_train_ns = pd.DataFrame(train_ns,index=None, columns=None)\n",
+    "\n",
+    "df_aux_s = pd.DataFrame(aux_s,index=None, columns=None)\n",
+    "df_aux_ns = pd.DataFrame(aux_ns,index=None, columns=None)\n",
+    "\n",
+    "df_val_s = pd.DataFrame(val_s,index=None, columns=None)\n",
+    "df_val_ns = pd.DataFrame(val_ns,index=None, columns=None)\n",
+    "\n",
+    "df_test = pd.DataFrame(test,index=None, columns=None)\n",
+    "df_unseen = pd.DataFrame(unseen,index=None, columns=None)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 113,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "      <th>2</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>62119</td>\n",
+       "      <td>380</td>\n",
+       "      <td>250</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>9383</td>\n",
+       "      <td>380</td>\n",
+       "      <td>75797</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>14325</td>\n",
+       "      <td>380</td>\n",
+       "      <td>54</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>47268</td>\n",
+       "      <td>380</td>\n",
+       "      <td>600</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>35865</td>\n",
+       "      <td>380</td>\n",
+       "      <td>40</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "       0    1      2\n",
+       "0  62119  380    250\n",
+       "1   9383  380  75797\n",
+       "2  14325  380     54\n",
+       "3  47268  380    600\n",
+       "4  35865  380     40"
+      ]
+     },
+     "execution_count": 113,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# df_train_s.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 114,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "      <th>2</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>5952</td>\n",
+       "      <td>305</td>\n",
+       "      <td>32343</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>9267</td>\n",
+       "      <td>293</td>\n",
+       "      <td>63482</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>24794</td>\n",
+       "      <td>269</td>\n",
+       "      <td>72969</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>72444</td>\n",
+       "      <td>249</td>\n",
+       "      <td>47892</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>38302</td>\n",
+       "      <td>39</td>\n",
+       "      <td>13554</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "       0    1      2\n",
+       "0   5952  305  32343\n",
+       "1   9267  293  63482\n",
+       "2  24794  269  72969\n",
+       "3  72444  249  47892\n",
+       "4  38302   39  13554"
+      ]
+     },
+     "execution_count": 114,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# df_train_ns.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 115,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "All the seralised files are now saved inside Seralised folder\n"
+     ]
+    }
+   ],
+   "source": [
+    "path = os.getcwd()+'/Seralised/'\n",
+    "df_train_s.to_csv(path+'train_s',sep=' ', header=False, index=False, encoding = \"utf-8\")\n",
+    "df_train_ns.to_csv(path+'train_ns',sep=' ', header=False, index=False, encoding = \"utf-8\")\n",
+    "\n",
+    "df_aux_s.to_csv(path+'aux_s',sep=' ', header=False, index=False, encoding = \"utf-8\")\n",
+    "df_aux_ns.to_csv(path+'aux_ns',sep=' ', header=False, index=False, encoding = \"utf-8\")\n",
+    "\n",
+    "df_val_s.to_csv(path+'val_s',sep=' ', header=False, index=False, encoding = \"utf-8\")\n",
+    "df_val_ns.to_csv(path+'val_ns',sep=' ', header=False, index=False, encoding = \"utf-8\")\n",
+    "\n",
+    "df_test.to_csv(path+'test',sep=' ', header=False, index=False, encoding = \"utf-8\")\n",
+    "df_unseen.to_csv(path+'unseen',sep=' ', header=False, index=False, encoding = \"utf-8\")\n",
+    "\n",
+    "print(\"All the seralised files are now saved inside Seralised folder\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 116,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "      <th>2</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>24779.000000</td>\n",
+       "      <td>24779.0</td>\n",
+       "      <td>24779.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>38067.581944</td>\n",
+       "      <td>380.0</td>\n",
+       "      <td>18460.194600</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>21496.097299</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>32282.420443</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>380.0</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>19607.000000</td>\n",
+       "      <td>380.0</td>\n",
+       "      <td>85.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>37119.000000</td>\n",
+       "      <td>380.0</td>\n",
+       "      <td>405.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>56672.000000</td>\n",
+       "      <td>380.0</td>\n",
+       "      <td>643.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>75670.000000</td>\n",
+       "      <td>380.0</td>\n",
+       "      <td>75797.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                  0        1             2\n",
+       "count  24779.000000  24779.0  24779.000000\n",
+       "mean   38067.581944    380.0  18460.194600\n",
+       "std    21496.097299      0.0  32282.420443\n",
+       "min        1.000000    380.0      1.000000\n",
+       "25%    19607.000000    380.0     85.000000\n",
+       "50%    37119.000000    380.0    405.000000\n",
+       "75%    56672.000000    380.0    643.000000\n",
+       "max    75670.000000    380.0  75797.000000"
+      ]
+     },
+     "execution_count": 116,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_train_s.describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 117,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "False"
+      ]
+     },
+     "execution_count": 117,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_train_s.isnull().values.any()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
